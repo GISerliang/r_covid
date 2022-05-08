@@ -1,0 +1,10 @@
+[workspace]
+members = ["covid", "app", "gui", "core"]
+default-members = ["covid", "app", "gui", "core"]
+resolver = "2"
+
+[patch.crates-io]
+rcovid = { path = "covid" }
+rcovid_app = { path = "app" }
+rcovid_gui = { path = "gui" }
+rcovid_core = { path = "core" }

@@ -1,0 +1,32 @@
+[package]
+name = "rcovid_app"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rcovid_core = "*"
+rcovid_gui = "*"
+
+serde_json = "^1.0"
+rfd = "^0.7.*"
+walkdir = "2"
+tracing = "^0.1.*"
+tracing-subscriber = "*"
+
+[dependencies.serde]
+version = "^1.0"
+features = ["derive", "default"]
+
+[dependencies.egui]
+version = "^0.18"
+features = ["default_fonts"]
+
+[dependencies.egui_extras]
+version = "^0.18"
+features = ["svg", "image"]
+
+[dependencies.eframe]
+version = "^0.18.0"
+features = ["default_fonts"]

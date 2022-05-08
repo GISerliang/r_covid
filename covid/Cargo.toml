@@ -1,0 +1,29 @@
+[package]
+name = "rcovid"
+version = "0.1.0"
+edition = "2021"
+authors = ["giserliang <hml8431386@163.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "^0.4.*"
+image = "^0.24.*"
+tracing = "^0.1.*"
+tracing-subscriber = "*"
+tracing-appender = "^0.2"
+
+rcovid_app = "*"
+rcovid_core = "*"
+
+[dependencies.tokio]
+version = "~1.14"
+features = ["full"]
+
+[dependencies.egui]
+version = "^0.18"
+features = ["default_fonts"]
+
+[dependencies.eframe]
+version = "^0.18.0"
+features = ["default_fonts"]
