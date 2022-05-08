@@ -22,6 +22,7 @@ use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::time::FormatTime;
 
 use rcovid_app;
+use rcovid_core;
 
 struct RcdLocalTimer;
 
@@ -78,7 +79,7 @@ async fn main() {
         ..Default::default()
     };
     eframe::run_native(
-        "rCovid",
+        rcovid_core::APP_KEY,
         options,
         Box::new(|cc| Box::new(rcovid_app::rcdapplication::RcdApplication::new(cc))),
     );
