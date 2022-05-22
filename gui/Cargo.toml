@@ -2,7 +2,19 @@
 name = "rcovid_gui"
 version = "0.1.0"
 edition = "2021"
+authors = ["giserliang <hml8431386@163.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rcovid_core = "*"
+
+json = "^0.12"
+
+[dependencies.egui]
+version = "^0.18"
+features = ["default"]
+
+[dependencies.egui_extras]
+version = "^0.18"
+features = ["svg", "image"]

@@ -48,7 +48,6 @@ async fn main() {
         tracing_subscriber::fmt()
             .with_max_level(Level::DEBUG)
             .with_writer(io::stdout) // write to stdout
-            .with_ansi(false) // close ansi color out
             .event_format(format)
             .init();
     } else {
