@@ -10,6 +10,7 @@ authors = ["giserliang <hml8431386@163.com>"]
 rcovid_core = "*"
 
 json = "^0.12"
+linked-hash-map = "^0.5"
 
 [dependencies.egui]
 version = "^0.18"

@@ -11,14 +11,14 @@
 use eframe;
 use eframe::glow;
 use egui::epaint::ahash::AHashMap;
-use egui::{vec2, widgets::Widget, Context, FontFamily, ImageButton, Rgba, Window, Align2, Vec2, TextBuffer, ScrollArea};
+use egui::{vec2, widgets::Widget, Align2, Context, FontFamily, ImageButton, Rgba, ScrollArea, TextBuffer, Vec2, Window};
 use egui_extras::RetainedImage;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::ops::Deref;
 use ehttp::{self};
 use json::JsonValue;
 use poll_promise::Promise;
 use scraper::Html;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::ops::Deref;
 
 use rcovid_core::CovidDataType;
 
@@ -48,20 +48,10 @@ impl RcdApplication {
         let mut style: egui::Style = cc.egui_ctx.style().deref().clone();
         style.visuals.override_text_color = Some(egui::Color32::BLACK);
         style.override_text_style = Some(egui::TextStyle::Body);
-        style
-            .text_styles
-            .get_mut(&egui::TextStyle::Body)
-            .unwrap()
-            .family = egui::FontFamily::Monospace;
+        style.text_styles.get_mut(&egui::TextStyle::Body).unwrap().family = egui::FontFamily::Monospace;
 
-        style.text_styles.insert(
-            egui::TextStyle::Body,
-            egui::FontId::new(16.0, egui::FontFamily::Monospace),
-        );
-        style.text_styles.insert(
-            egui::TextStyle::Button,
-            egui::FontId::new(16.0, egui::FontFamily::Monospace),
-        );
+        style.text_styles.insert(egui::TextStyle::Body, egui::FontId::new(16.0, egui::FontFamily::Monospace));
+        style.text_styles.insert(egui::TextStyle::Button, egui::FontId::new(16.0, egui::FontFamily::Monospace));
 
         let visuals = style.visuals.clone();
         cc.egui_ctx.set_style(style);
@@ -79,10 +69,7 @@ impl RcdApplication {
             "MSYH".to_owned(),
             egui::FontData::from_static(include_bytes!("../../fonts/msyh.ttc")), // 微软雅黑
         );
-        fonts.font_data.insert(
-            "maptool-iconfont".to_owned(),
-            egui::FontData::from_static(include_bytes!("../../fonts/maptool-iconfont.ttf")),
-        );
+        fonts.font_data.insert("maptool-iconfont".to_owned(), egui::FontData::from_static(include_bytes!("../../fonts/maptool-iconfont.ttf")));
 
         // 3. Set two font families to use the font, font's name must have been
         // Put new font first (highest priority)registered in `font_data`.
@@ -110,8 +97,8 @@ impl RcdApplication {
         script_id_map.insert(String::from("getIndexRumorList"), CovidDataType::IndexRumorList);
         script_id_map.insert(String::from("fetchRecentStatV2"), CovidDataType::RecentStatV2);
 
-        let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![
-            Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
+        let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
+                                                             Box::new(rcovid_gui::rcdareastatwindow::RcdAreaStatWindow::default()),
         ];
 
         let mut open_windows = BTreeSet::new();
@@ -139,24 +126,23 @@ impl eframe::App for RcdApplication {
             // self.show_menu_bar(ui, frame);
         });
 
-        egui::SidePanel::right("rcovid_right_panel").min_width(150.).default_width(180.)
-            .show(ctx, |ui| {
-                egui::trace!(ui);
-                ui.vertical_centered(|ui| {
-                    ui.heading("窗口选项");
-                });
-
-                ui.separator();
-
-                ScrollArea::vertical().show(ui, |ui| {
-                    for window in &self.windows {
-                        let data = self.covid_json_map.get(&window.window_type());
-                        let mut is_open = self.open_windows.contains(&window.window_type());
-                        ui.checkbox(&mut is_open, window.name());
-                        set_open(&mut self.open_windows, &window.window_type(), is_open);
-                    }
-                });
+        egui::SidePanel::right("rcovid_right_panel").min_width(150.).default_width(180.).show(ctx, |ui| {
+            egui::trace!(ui);
+            ui.vertical_centered(|ui| {
+                ui.heading("窗口选项");
             });
+
+            ui.separator();
+
+            ScrollArea::vertical().show(ui, |ui| {
+                for window in &self.windows {
+                    let data = self.covid_json_map.get(&window.window_type());
+                    let mut is_open = self.open_windows.contains(&window.window_type());
+                    ui.checkbox(&mut is_open, window.name());
+                    set_open(&mut self.open_windows, &window.window_type(), is_open);
+                }
+            });
+        });
 
         let mut fill = ctx.style().visuals.extreme_bg_color;
         if !cfg!(target_arch = "wasm32") {
@@ -195,12 +181,7 @@ impl eframe::App for RcdApplication {
                                                             let text = child_node.as_text().unwrap();
 
                                                             let try_str = format!("try {} window.{} = ", "{", element_id);
-                                                            let html_content = text.trim()
-                                                                .replace(try_str.as_str(), "").as_str()
-                                                                .replace("}catch(e){}", "").as_str()
-                                                                .replace("}catch(e) {}", "").as_str()
-                                                                .replace("} catch(e){}", "").as_str()
-                                                                .replace("} catch(e) {}", "");
+                                                            let html_content = text.trim().replace(try_str.as_str(), "").as_str().replace("}catch(e){}", "").as_str().replace("}catch(e) {}", "").as_str().replace("} catch(e){}", "").as_str().replace("} catch(e) {}", "");
 
                                                             let json_res = json::parse(html_content.as_str());
                                                             if json_res.is_ok() {
@@ -310,7 +291,12 @@ impl RcdApplication {
     }
 
     pub fn windows(&mut self, ctx: &Context) {
-        let Self { windows, open_windows, covid_json_map, .. } = self;
+        let Self {
+            windows,
+            open_windows,
+            covid_json_map,
+            ..
+        } = self;
         for window in windows {
             let mut is_open = open_windows.contains(&window.window_type());
             window.show(ctx, &mut is_open, covid_json_map.get(&window.window_type()));

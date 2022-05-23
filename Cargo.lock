@@ -1569,6 +1569,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "linked-hash-map"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
+
+[[package]]
 name = "lock_api"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2497,6 +2503,7 @@ dependencies = [
  "egui",
  "egui_extras",
  "json",
+ "linked-hash-map",
  "rcovid_core",
 ]
 
