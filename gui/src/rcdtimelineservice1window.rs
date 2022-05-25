@@ -8,6 +8,8 @@
 //!
 ////////////////////////////////////////////////////////////////////////////////
 
+use std::str::FromStr;
+use chrono::TimeZone;
 use json::JsonValue;
 use egui::{Color32, WidgetText, self, RichText, Hyperlink};
 use egui_extras::{Size, TableBuilder};
@@ -41,7 +43,8 @@ impl super::View for RcdTimelineService1Window {
             .striped(true)
             .cell_layout(egui::Layout::left_to_right().with_cross_align(egui::Align::Center))
             .column(Size::initial(26.0).at_least(26.0))
-            .column(Size::remainder().at_least(60.0))
+            .column(Size::initial(120.0).at_least(120.0))
+            .column(Size::remainder().at_least(64.0))
             .body(|mut body| {
                 if let Some(json_value) = data {
                     if json_value.is_array() {
@@ -50,6 +53,15 @@ impl super::View for RcdTimelineService1Window {
                             body.row(30., |mut row| {
                                 row.col(|ui| {
                                     ui.label(RichText::new("最新").background_color(Color32::from_rgb(247, 76, 49)).color(Color32::WHITE));
+                                });
+                                row.col(|ui| {
+                                    let timestamp = member["pubDate"].as_i64().unwrap_or(0);
+                                    let china_timezone = chrono::FixedOffset::east(8 * 3600);
+                                    let datetime = format!("{}",
+                                                           chrono::NaiveDateTime::from_timestamp(timestamp / 1000,
+                                                                                                 (timestamp % 1000) as u32).
+                                                               format("%Y-%m-%d %H:%M:%SZ")).as_str().parse::<chrono::DateTime<chrono::Utc>>().unwrap();
+                                    ui.label(format!("{}", datetime.with_timezone(&china_timezone).format("%Y-%m-%d %H:%M:%S")).as_str());
                                 });
                                 row.col(|ui| {
                                     ui.hyperlink_to(WidgetText::from(member["title"].as_str().unwrap_or_default()),
