@@ -238,44 +238,46 @@ impl super::View for RcdRecentStatV2Window {
     fn ui(&mut self, ui: &mut Ui, data: Option<&JsonValue>) {
         use egui_extras::{TableBuilder, Size};
 
-        if let Some(json_value) = data {
-            if json_value.is_array() {
-                let members = json_value.members();
-                for member in members {
-                    let province_name = member["provinceName"].as_str().unwrap_or("").to_string();
-                    let mut cities = Vec::new();
-                    let cities_val = &member["cities"];
-                    if !cities_val.is_null() && cities_val.is_array() && cities_val.len() > 0 {
-                        for city_val in cities_val.members() {
-                            let city = RecentCityStat {
-                                name: city_val["cityName"].as_str().unwrap_or("").to_string(),
-                                current_confirmed_count: city_val["currentConfirmedCount"].as_i64().unwrap_or(0),
-                                confirmed_count: city_val["confirmedCount"].as_i64().unwrap_or(0),
-                                yesterday_local_confirmed_count: city_val["yesterdayLocalConfirmedCount"].as_i64().unwrap_or(0),
-                                yesterday_asymptomatic_count: city_val["yesterdayAsymptomaticCount"].as_i64().unwrap_or(0),
-                                danger_count_incr: city_val["dangerCountIncr"].as_u32().unwrap_or(0),
-                                location_id: city_val["locationId"].as_i32().unwrap_or(0),
-                                current_danger_count: city_val["currentDangerCount"].as_u32().unwrap_or(0),
-                            };
-                            cities.push(city);
+        if self.provinces_stat.len() <= 0 {
+            if let Some(json_value) = data {
+                if json_value.is_array() {
+                    let members = json_value.members();
+                    for member in members {
+                        let province_name = member["provinceName"].as_str().unwrap_or("").to_string();
+                        let mut cities = Vec::new();
+                        let cities_val = &member["cities"];
+                        if !cities_val.is_null() && cities_val.is_array() && cities_val.len() > 0 {
+                            for city_val in cities_val.members() {
+                                let city = RecentCityStat {
+                                    name: city_val["cityName"].as_str().unwrap_or("").to_string(),
+                                    current_confirmed_count: city_val["currentConfirmedCount"].as_i64().unwrap_or(0),
+                                    confirmed_count: city_val["confirmedCount"].as_i64().unwrap_or(0),
+                                    yesterday_local_confirmed_count: city_val["yesterdayLocalConfirmedCount"].as_i64().unwrap_or(0),
+                                    yesterday_asymptomatic_count: city_val["yesterdayAsymptomaticCount"].as_i64().unwrap_or(0),
+                                    danger_count_incr: city_val["dangerCountIncr"].as_u32().unwrap_or(0),
+                                    location_id: city_val["locationId"].as_i32().unwrap_or(0),
+                                    current_danger_count: city_val["currentDangerCount"].as_u32().unwrap_or(0),
+                                };
+                                cities.push(city);
+                            }
                         }
+
+                        let province_stat = RecentProvinceStat {
+                            name: province_name,
+                            short_name: member["provinceShortName"].as_str().unwrap_or("").to_string(),
+                            current_confirmed_count: member["currentConfirmedCount"].as_i64().unwrap_or(0),
+                            confirmed_count: member["confirmedCount"].as_i64().unwrap_or(0),
+                            yesterday_local_confirmed_count: member["yesterdayLocalConfirmedCount"].as_i64().unwrap_or(0),
+                            yesterday_asymptomatic_count: member["yesterdayAsymptomaticCount"].as_i64().unwrap_or(0),
+                            danger_count_incr: member["dangerCountIncr"].as_u32().unwrap_or(0),
+                            location_id: member["locationId"].as_i32().unwrap_or(0),
+                            statistic_data_uri: member["statisticsData"].as_str().unwrap_or("").to_string(),
+                            current_danger_count: member["currentDangerCount"].as_u32().unwrap_or(0),
+                            cities,
+                        };
+
+                        self.provinces_stat.insert(province_stat.location_id, province_stat);
                     }
-
-                    let province_stat = RecentProvinceStat {
-                        name: province_name,
-                        short_name: member["provinceShortName"].as_str().unwrap_or("").to_string(),
-                        current_confirmed_count: member["currentConfirmedCount"].as_i64().unwrap_or(0),
-                        confirmed_count: member["confirmedCount"].as_i64().unwrap_or(0),
-                        yesterday_local_confirmed_count: member["yesterdayLocalConfirmedCount"].as_i64().unwrap_or(0),
-                        yesterday_asymptomatic_count: member["yesterdayAsymptomaticCount"].as_i64().unwrap_or(0),
-                        danger_count_incr: member["dangerCountIncr"].as_u32().unwrap_or(0),
-                        location_id: member["locationId"].as_i32().unwrap_or(0),
-                        statistic_data_uri: member["statisticsData"].as_str().unwrap_or("").to_string(),
-                        current_danger_count: member["currentDangerCount"].as_u32().unwrap_or(0),
-                        cities,
-                    };
-
-                    self.provinces_stat.insert(province_stat.location_id, province_stat);
                 }
             }
         }
