@@ -3,6 +3,7 @@ use egui;
 
 use rcovid_core;
 
+#[derive(Debug, Clone)]
 pub(crate) struct DangerArea {
     // 市/区名称
     pub city_name: String,
@@ -88,3 +89,4 @@ pub trait Window {
 pub mod rcdtimelineservice1window;
 pub mod rcdareastatwindow;
 pub(crate) mod rcdprovincedetailwindow;
+pub mod rcdrecentstatv2window;
