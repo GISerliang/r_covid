@@ -51,7 +51,6 @@ impl super::Window for RcdAreaStatWindow {
 impl super::View for RcdAreaStatWindow {
     fn ui(&mut self, ui: &mut egui::Ui, data: Option<&JsonValue>) {
         if self.provinces_stat.len() <= 0 {
-            // let mut provinces_stat = Vec::new();
             if let Some(json_value) = data {
                 if json_value.is_array() {
                     let members = json_value.members();
@@ -145,9 +144,7 @@ impl super::View for RcdAreaStatWindow {
                 .column(Size::initial(64.0).at_least(48.0))
                 .column(Size::initial(64.0).at_least(32.0))
                 .column(Size::initial(64.0).at_least(32.0))
-                .column(Size::initial(64.0).at_least(32.0))
-                .column(Size::initial(64.0).at_least(32.0))
-                .column(Size::initial(16.0).at_least(16.0))
+                .column(Size::initial(32.0).at_least(32.0))
                 .header(32., |mut header| {
                     header.col(|ui| {
                         ui.with_layout(egui::Layout::centered_and_justified(Direction::LeftToRight), |ui| {
@@ -172,11 +169,6 @@ impl super::View for RcdAreaStatWindow {
                     header.col(|ui| {
                         ui.with_layout(egui::Layout::right_to_left(), |ui| {
                             ui.heading(RichText::new("治愈")); //.background_color(Color32::from_rgb(149, 219, 154)));
-                        });
-                    });
-                    header.col(|ui| {
-                        ui.with_layout(egui::Layout::right_to_left(), |ui| {
-                            ui.heading(RichText::new("疑似")); // .background_color(Color32::from_rgb(227, 231, 243)));
                         });
                     });
                     header.col(|ui| {
@@ -211,11 +203,6 @@ impl super::View for RcdAreaStatWindow {
                             row.col(|ui| {
                                 ui.with_layout(egui::Layout::right_to_left(), |ui| {
                                     ui.label(province_stat.cured_count.to_string());
-                                });
-                            });
-                            row.col(|ui| {
-                                ui.with_layout(egui::Layout::right_to_left(), |ui| {
-                                    ui.label(province_stat.suspected_count.to_string());
                                 });
                             });
                             row.col(|ui| {
