@@ -61,7 +61,7 @@ impl super::View for RcdTimelineService1Window {
                                                            chrono::NaiveDateTime::from_timestamp(timestamp / 1000,
                                                                                                  (timestamp % 1000) as u32).
                                                                format("%Y-%m-%d %H:%M:%SZ")).as_str().parse::<chrono::DateTime<chrono::Utc>>().unwrap();
-                                    ui.label(format!("{}", datetime.with_timezone(&china_timezone).format("%Y-%m-%d %H:%M:%S")).as_str());
+                                    ui.code(format!("{}", datetime.with_timezone(&china_timezone).format("%Y-%m-%d %H:%M:%S")).as_str());
                                 });
                                 row.col(|ui| {
                                     ui.hyperlink_to(WidgetText::from(member["title"].as_str().unwrap_or_default()),
