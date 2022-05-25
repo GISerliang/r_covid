@@ -97,8 +97,10 @@ impl RcdApplication {
         script_id_map.insert(String::from("getIndexRumorList"), CovidDataType::IndexRumorList);
         script_id_map.insert(String::from("fetchRecentStatV2"), CovidDataType::RecentStatV2);
 
-        let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
-                                                             Box::new(rcovid_gui::rcdareastatwindow::RcdAreaStatWindow::default()),
+        let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![
+            Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
+            Box::new(rcovid_gui::rcdrecentstatv2window::RcdRecentStatV2Window::default()),
+            Box::new(rcovid_gui::rcdareastatwindow::RcdAreaStatWindow::default()),
         ];
 
         let mut open_windows = BTreeSet::new();

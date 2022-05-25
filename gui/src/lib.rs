@@ -69,7 +69,6 @@ pub(crate) struct ProvinceStat {
     pub cities: Vec<CityStat>,
 }
 
-
 /// Something to view in the demo windows
 pub trait View {
     fn ui(&mut self, ui: &mut egui::Ui, data: Option<&JsonValue>);
