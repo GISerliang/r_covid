@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 use json::JsonValue;
-use egui::{Color32, WidgetText, self, RichText};
+use egui::{Color32, WidgetText, self, RichText, Hyperlink};
 use egui_extras::{Size, TableBuilder};
 
 use rcovid_core;
@@ -52,7 +52,9 @@ impl super::View for RcdTimelineService1Window {
                                     ui.label(RichText::new("最新").background_color(Color32::from_rgb(247, 76, 49)).color(Color32::WHITE));
                                 });
                                 row.col(|ui| {
-                                    ui.label(WidgetText::from(member["title"].as_str().unwrap_or_default()));
+                                    ui.hyperlink_to(WidgetText::from(member["title"].as_str().unwrap_or_default()),
+                                                    member["sourceUrl"].as_str().unwrap_or_default())
+                                        .on_hover_text(member["summary"].as_str().unwrap_or_default());
                                 });
                             });
                         }
