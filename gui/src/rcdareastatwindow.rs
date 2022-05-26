@@ -8,7 +8,7 @@
 //!
 ////////////////////////////////////////////////////////////////////////////////
 
-use egui::{self, Color32, Direction, Hyperlink, RichText, WidgetText, Window};
+use egui::{self, Direction, RichText, Window};
 use egui_extras::{Size, TableBuilder};
 use json::JsonValue;
 use std::collections::HashMap;

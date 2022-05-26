@@ -8,10 +8,8 @@
 //!
 ////////////////////////////////////////////////////////////////////////////////
 
-use egui::{Context, Direction, Hyperlink, RichText, Ui, Window};
+use egui::{Context, Direction, Hyperlink, RichText, Window};
 use egui_extras::{Size, TableBuilder};
-use json::JsonValue;
-use rcovid_core::CovidDataType;
 
 use crate::ProvinceStat;
 

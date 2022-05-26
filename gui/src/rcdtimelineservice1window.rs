@@ -8,14 +8,11 @@
 //!
 ////////////////////////////////////////////////////////////////////////////////
 
-use std::str::FromStr;
-use chrono::TimeZone;
 use json::JsonValue;
-use egui::{Color32, WidgetText, self, RichText, Hyperlink};
+use egui::{Color32, WidgetText, self, RichText};
 use egui_extras::{Size, TableBuilder};
 
 use rcovid_core;
-use crate::Window;
 
 #[derive(Default)]
 pub struct RcdTimelineService1Window {}
