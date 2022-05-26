@@ -9,7 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 use std::collections::BTreeMap;
-use egui::{Context, Direction, RichText, Ui, Window};
+use egui::{Align, Color32, Context, Direction, FontFamily, FontId, Layout, RichText, TextFormat, Ui, Window};
+use egui::text::LayoutJob;
 use json::JsonValue;
 
 use rcovid_core::CovidDataType;
@@ -92,9 +93,28 @@ struct ContinentStat {
     pub provinces: Vec<ProvinceStat>,
 }
 
+#[derive(Debug)]
+struct GlobalStatistics {
+    // 现存确诊
+    pub current_confirmed_count: i64,
+    // 累计确诊
+    pub confirmed_count: i64,
+    // 死亡
+    pub dead_count: i64,
+    // 治愈
+    pub cured_count: i64,
+    pub current_confirmed_incr: i64,
+    pub confirmed_incr: i64,
+    pub cured_incr: i64,
+    pub dead_incr: i64,
+    pub statistic_datetime: chrono::DateTime<chrono::Utc>,
+    pub yesterday_confirmed_count_incr: i64,
+}
+
 #[derive(Default)]
 pub struct RcdListByCountryTypeWindow {
     continents_stat: BTreeMap<String, ContinentStat>,
+    global_statistics: Option<GlobalStatistics>,
 }
 
 impl super::Window for RcdListByCountryTypeWindow {
@@ -106,16 +126,16 @@ impl super::Window for RcdListByCountryTypeWindow {
         CovidDataType::ListByCountryTypeService2true
     }
 
-    fn show(&mut self, ctx: &Context, open: &mut bool, data: Option<&JsonValue>) {
+    fn show(&mut self, ctx: &Context, open: &mut bool, data: Option<&JsonValue>, statistics_data: Option<&JsonValue>) {
         Window::new(self.name()).open(open).show(ctx, |ui| {
             use super::View as _;
-            self.ui(ui, data);
+            self.ui(ui, data, statistics_data);
         });
     }
 }
 
 impl super::View for RcdListByCountryTypeWindow {
-    fn ui(&mut self, ui: &mut Ui, data: Option<&JsonValue>) {
+    fn ui(&mut self, ui: &mut Ui, data: Option<&JsonValue>, statistics_data: Option<&JsonValue>) {
         use egui_extras::{Size, TableBuilder};
 
         if self.continents_stat.len() <= 0 {
@@ -124,7 +144,6 @@ impl super::View for RcdListByCountryTypeWindow {
                     let members = json_value.members();
                     for member in members {
                         let timestamp = member["modifyTime"].as_i64().unwrap_or(0);
-                        // let china_timezone = chrono::FixedOffset::east(8 * 3600);
                         let datetime = format!("{}",
                                                chrono::NaiveDateTime::from_timestamp(timestamp / 1000,
                                                                                      (timestamp % 1000) as u32).
@@ -200,13 +219,188 @@ impl super::View for RcdListByCountryTypeWindow {
 
                 for (_, continent_stat) in &mut self.continents_stat {
                     continent_stat.provinces.sort_by(|a, b| {
-                        a.confirmed_count_rank.cmp(&b.confirmed_count_rank)
+                        b.current_confirmed_count.cmp(&a.current_confirmed_count)
+                    });
+                }
+            }
+        }
+
+        if self.global_statistics.is_none() {
+            if let Some(json_value) = statistics_data {
+                if json_value.is_object() && json_value.has_key("globalStatistics") {
+                    let json = &json_value["globalStatistics"];
+
+                    let timestamp = json_value["modifyTime"].as_i64().unwrap_or(0);
+                    let datetime = format!("{}",
+                                           chrono::NaiveDateTime::from_timestamp(timestamp / 1000,
+                                                                                 (timestamp % 1000) as u32).
+                                               format("%Y-%m-%d %H:%M:%SZ")).as_str().parse::<chrono::DateTime<chrono::Utc>>().unwrap();
+
+                    self.global_statistics = Some(GlobalStatistics {
+                        current_confirmed_count: json["currentConfirmedCount"].as_i64().unwrap_or(0),
+                        confirmed_count: json["confirmedCount"].as_i64().unwrap_or(0),
+                        dead_count: json["deadCount"].as_i64().unwrap_or(0),
+                        cured_count: json["curedCount"].as_i64().unwrap_or(0),
+                        current_confirmed_incr: json["currentConfirmedIncr"].as_i64().unwrap_or(0),
+                        confirmed_incr: json["confirmedIncr"].as_i64().unwrap_or(0),
+                        cured_incr: json["curedIncr"].as_i64().unwrap_or(0),
+                        dead_incr: json["deadIncr"].as_i64().unwrap_or(0),
+                        statistic_datetime: datetime,
+                        yesterday_confirmed_count_incr: json["yesterdayConfirmedCountIncr"].as_i64().unwrap_or(0),
                     });
                 }
             }
         }
 
         egui::ScrollArea::vertical().show(ui, |ui| {
+            if let Some(global_stat) = &self.global_statistics {
+                let china_timezone = chrono::FixedOffset::east(8 * 3600);
+                ui.code(format!("截止北京时间 {}", global_stat.statistic_datetime.with_timezone(&china_timezone).format("%Y-%m-%d %H:%M")));
+
+                ui.separator();
+
+                TableBuilder::new(ui).striped(true)
+                    .column(Size::initial(80.).at_least(80.))
+                    .column(Size::initial(80.).at_least(80.))
+                    .column(Size::initial(80.).at_least(80.))
+                    .column(Size::initial(80.).at_least(80.))
+                    .body(|mut body| {
+                        body.row(12., |mut row| {
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("昨日{}{}", if global_stat.current_confirmed_incr >= 0 { "+" } else { "-" },
+                                                                   global_stat.current_confirmed_incr.abs()).as_str()).size(12.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("昨日{}{}", if global_stat.confirmed_incr >= 0 { "+" } else { "-" },
+                                                                   global_stat.confirmed_incr.abs()).as_str()).size(12.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("昨日{}{}", if global_stat.dead_incr >= 0 { "+" } else { "-" },
+                                                                   global_stat.dead_incr.abs()).as_str()).size(12.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("昨日{}{}", if global_stat.cured_incr >= 0 { "+" } else { "-" },
+                                                                   global_stat.cured_incr.abs()).as_str()).size(12.));
+                                });
+                            });
+                        });
+                        body.row(20., |mut row| {
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("{}", global_stat.current_confirmed_count).as_str()));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("{}", global_stat.confirmed_count).as_str()));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("{}", global_stat.dead_count).as_str()));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new(format!("{}", global_stat.cured_count).as_str()));
+                                });
+                            });
+                        });
+                        body.row(14., |mut row| {
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new("现存确诊").size(14.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new("累计确诊").size(14.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new("累计死亡").size(14.));
+                                });
+                            });
+                            row.col(|ui| {
+                                ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
+                                    ui.label(RichText::new("累计治愈").size(14.));
+                                });
+                            });
+                        });
+                    });
+                // ui.horizontal(|ui| {
+                // egui::Grid::new("current_confirmed_count").striped(true).min_col_width(80.).show(ui, |ui| {
+                //     ui.horizontal_centered(|ui| {
+                //         ui.vertical(|ui| {
+                //             ui.label(RichText::new(format!("昨日{}{}", if global_stat.current_confirmed_incr >= 0 { "+" } else { "-" },
+                //                                            global_stat.current_confirmed_incr.abs()).as_str()).size(12.));
+                //
+                //             ui.label(format!("{}", global_stat.current_confirmed_count).as_str());
+                //
+                //             ui.label(RichText::new("现存确诊").size(14.));
+                //         });
+                //     });
+                // });
+                //
+                // egui::Grid::new("confirmed_count").striped(true).min_col_width(80.).show(ui, |ui| {
+                //     ui.horizontal_centered(|ui| {
+                //         ui.vertical(|ui| {
+                //             ui.label(RichText::new(format!("昨日{}{}", if global_stat.confirmed_incr >= 0 { "+" } else { "-" },
+                //                                            global_stat.confirmed_incr.abs()).as_str()).size(12.));
+                //
+                //             ui.label(format!("{}", global_stat.confirmed_count).as_str());
+                //
+                //             ui.label(RichText::new("累计确诊").size(14.));
+                //         });
+                //     });
+                // });
+                // });
+
+                // let mut current_confirmed_job = LayoutJob {
+                //     halign: Align::Center,
+                //     ..Default::default()
+                // };
+                // current_confirmed_job.append(format!("昨日{}{}", if global_stat.current_confirmed_incr >= 0 { "+" } else { "-" }, global_stat.current_confirmed_incr.abs()).as_str(),
+                //                              0.0, TextFormat {
+                //         font_id: FontId::new(12.0, FontFamily::Proportional),
+                //         color: Color32::BLACK,
+                //         valign: Align::TOP,
+                //         ..Default::default()
+                //     },
+                // );
+                // current_confirmed_job.append(format!("{}", global_stat.current_confirmed_count).as_str(),
+                //                              0.0, TextFormat {
+                //         font_id: FontId::new(16.0, FontFamily::Proportional),
+                //         color: Color32::BLACK,
+                //         ..Default::default()
+                //     },
+                // );
+                // current_confirmed_job.append("现存确诊",
+                //                              0.0, TextFormat {
+                //         font_id: FontId::new(14.0, FontFamily::Proportional),
+                //         color: Color32::BLACK,
+                //         ..Default::default()
+                //     },
+                // );
+                //
+                // // let mut job = LayoutJob::default();
+                // // job.append(current_confirmed_job, 0.0, TextFormat {
+                // //     font_id: FontId::new(14.0, FontFamily::Proportional),
+                // //     color: Color32::WHITE,
+                // //     ..Default::default()
+                // // }, );
+                // ui.label(current_confirmed_job);
+                ui.separator();
+            }
+
             let mut iter = Vec::from_iter(&self.continents_stat);
             iter.sort_by(|&(_, a), &(_, b)| {
                 b.current_confirmed_count.cmp(&a.current_confirmed_count)
