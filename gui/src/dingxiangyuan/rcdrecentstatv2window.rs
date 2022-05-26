@@ -76,10 +76,10 @@ impl super::Window for RcdRecentStatV2Window {
         CovidDataType::RecentStatV2
     }
 
-    fn show(&mut self, ctx: &Context, open: &mut bool, data: Option<&JsonValue>) {
+    fn show(&mut self, ctx: &Context, open: &mut bool, data: Option<&JsonValue>, statistics_data: Option<&JsonValue>) {
         Window::new(self.name()).open(open).show(ctx, |ui| {
             use super::View as _;
-            self.ui(ui, data);
+            self.ui(ui, data, statistics_data);
         });
 
         if let Some(id) = self.province_detail_id {
@@ -235,7 +235,7 @@ impl super::Window for RcdRecentStatV2Window {
 }
 
 impl super::View for RcdRecentStatV2Window {
-    fn ui(&mut self, ui: &mut Ui, data: Option<&JsonValue>) {
+    fn ui(&mut self, ui: &mut Ui, data: Option<&JsonValue>, statistics_data: Option<&JsonValue>) {
         use egui_extras::{TableBuilder, Size};
 
         if self.provinces_stat.len() <= 0 {
