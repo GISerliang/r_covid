@@ -31,7 +31,7 @@ pub struct RcdApplication {
     error_msg: String,
     script_id_map: HashMap<String, CovidDataType>,
     covid_json_map: HashMap<CovidDataType, JsonValue>,
-    windows: Vec<Box<dyn rcovid_gui::Window>>,
+    windows: Vec<Box<dyn rcovid_gui::dingxiangyuan::Window>>,
     open_windows: BTreeSet<CovidDataType>,
 }
 
@@ -105,11 +105,11 @@ impl RcdApplication {
         script_id_map.insert(String::from("getTimelineService1"), CovidDataType::TimelineService1);
         script_id_map.insert(String::from("fetchRecentStatV2"), CovidDataType::RecentStatV2);
 
-        let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![
-            Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
-            Box::new(rcovid_gui::rcdrecentstatv2window::RcdRecentStatV2Window::default()),
-            Box::new(rcovid_gui::rcdareastatwindow::RcdAreaStatWindow::default()),
-            Box::new(rcovid_gui::rcdlistbycountrytypewindow::RcdListByCountryTypeWindow::default()),
+        let windows: Vec<Box<dyn rcovid_gui::dingxiangyuan::Window>> = vec![
+            Box::new(rcovid_gui::dingxiangyuan::rcdtimelineservice1window::RcdTimelineService1Window::default()),
+            Box::new(rcovid_gui::dingxiangyuan::rcdrecentstatv2window::RcdRecentStatV2Window::default()),
+            Box::new(rcovid_gui::dingxiangyuan::rcdareastatwindow::RcdAreaStatWindow::default()),
+            Box::new(rcovid_gui::dingxiangyuan::rcdlistbycountrytypewindow::RcdListByCountryTypeWindow::default()),
         ];
 
         let mut open_windows = BTreeSet::new();
@@ -199,9 +199,6 @@ impl eframe::App for RcdApplication {
                                                             let json_res = json::parse(html_content.as_str());
                                                             if json_res.is_ok() {
                                                                 let json = json_res.unwrap();
-                                                                if covid_data_type == CovidDataType::StatisticsService {
-                                                                    println!("StatisticsService  {:?}", &json.to_string());
-                                                                }
                                                                 self.covid_json_map.insert(covid_data_type, json);
                                                             } else {
                                                                 tracing::error!("{} error, error info: {}", element_id, json_res.unwrap_err().to_string());
@@ -312,7 +309,7 @@ impl RcdApplication {
         } = self;
         for window in windows {
             let mut is_open = open_windows.contains(&window.window_type());
-            window.show(ctx, &mut is_open, covid_json_map.get(&window.window_type()));
+            window.show(ctx, &mut is_open, covid_json_map.get(&window.window_type()), covid_json_map.get(&CovidDataType::StatisticsService));
             set_open(open_windows, &window.window_type(), is_open);
         }
     }
