@@ -336,68 +336,6 @@ impl super::View for RcdListByCountryTypeWindow {
                             });
                         });
                     });
-                // ui.horizontal(|ui| {
-                // egui::Grid::new("current_confirmed_count").striped(true).min_col_width(80.).show(ui, |ui| {
-                //     ui.horizontal_centered(|ui| {
-                //         ui.vertical(|ui| {
-                //             ui.label(RichText::new(format!("昨日{}{}", if global_stat.current_confirmed_incr >= 0 { "+" } else { "-" },
-                //                                            global_stat.current_confirmed_incr.abs()).as_str()).size(12.));
-                //
-                //             ui.label(format!("{}", global_stat.current_confirmed_count).as_str());
-                //
-                //             ui.label(RichText::new("现存确诊").size(14.));
-                //         });
-                //     });
-                // });
-                //
-                // egui::Grid::new("confirmed_count").striped(true).min_col_width(80.).show(ui, |ui| {
-                //     ui.horizontal_centered(|ui| {
-                //         ui.vertical(|ui| {
-                //             ui.label(RichText::new(format!("昨日{}{}", if global_stat.confirmed_incr >= 0 { "+" } else { "-" },
-                //                                            global_stat.confirmed_incr.abs()).as_str()).size(12.));
-                //
-                //             ui.label(format!("{}", global_stat.confirmed_count).as_str());
-                //
-                //             ui.label(RichText::new("累计确诊").size(14.));
-                //         });
-                //     });
-                // });
-                // });
-
-                // let mut current_confirmed_job = LayoutJob {
-                //     halign: Align::Center,
-                //     ..Default::default()
-                // };
-                // current_confirmed_job.append(format!("昨日{}{}", if global_stat.current_confirmed_incr >= 0 { "+" } else { "-" }, global_stat.current_confirmed_incr.abs()).as_str(),
-                //                              0.0, TextFormat {
-                //         font_id: FontId::new(12.0, FontFamily::Proportional),
-                //         color: Color32::BLACK,
-                //         valign: Align::TOP,
-                //         ..Default::default()
-                //     },
-                // );
-                // current_confirmed_job.append(format!("{}", global_stat.current_confirmed_count).as_str(),
-                //                              0.0, TextFormat {
-                //         font_id: FontId::new(16.0, FontFamily::Proportional),
-                //         color: Color32::BLACK,
-                //         ..Default::default()
-                //     },
-                // );
-                // current_confirmed_job.append("现存确诊",
-                //                              0.0, TextFormat {
-                //         font_id: FontId::new(14.0, FontFamily::Proportional),
-                //         color: Color32::BLACK,
-                //         ..Default::default()
-                //     },
-                // );
-                //
-                // // let mut job = LayoutJob::default();
-                // // job.append(current_confirmed_job, 0.0, TextFormat {
-                // //     font_id: FontId::new(14.0, FontFamily::Proportional),
-                // //     color: Color32::WHITE,
-                // //     ..Default::default()
-                // // }, );
-                // ui.label(current_confirmed_job);
                 ui.separator();
             }
 
