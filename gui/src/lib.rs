@@ -89,3 +89,4 @@ pub mod rcdtimelineservice1window;
 pub mod rcdareastatwindow;
 pub(crate) mod rcdprovincedetailwindow;
 pub mod rcdrecentstatv2window;
+pub mod rcdlistbycountrytypewindow;

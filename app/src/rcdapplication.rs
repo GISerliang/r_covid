@@ -10,14 +10,12 @@
 
 use eframe;
 use eframe::glow;
-use egui::epaint::ahash::AHashMap;
-use egui::{vec2, widgets::Widget, Align2, Context, FontFamily, ImageButton, Rgba, ScrollArea, TextBuffer, Vec2, Window};
-use egui_extras::RetainedImage;
+use egui::{Align2, Context, FontFamily, Rgba, ScrollArea, Vec2, Window};
 use ehttp::{self};
 use json::JsonValue;
 use poll_promise::Promise;
 use scraper::Html;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap};
 use std::ops::Deref;
 
 use rcovid_core::CovidDataType;
@@ -41,7 +39,7 @@ impl RcdApplication {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         #[cfg(feature = "persistence")]
         if let Some(storage) = _storage {
-            return epi::get_value(storage, rgis_core::APP_KEY).unwrap_or_default();
+            return epi::get_value(storage, rcovid_core::APP_KEY).unwrap_or_default();
         }
         tracing::debug!("Setup");
 
@@ -50,8 +48,12 @@ impl RcdApplication {
         style.override_text_style = Some(egui::TextStyle::Body);
         style.text_styles.get_mut(&egui::TextStyle::Body).unwrap().family = egui::FontFamily::Monospace;
 
-        style.text_styles.insert(egui::TextStyle::Body, egui::FontId::new(16.0, egui::FontFamily::Monospace));
-        style.text_styles.insert(egui::TextStyle::Button, egui::FontId::new(16.0, egui::FontFamily::Monospace));
+        style.text_styles.insert(
+            egui::TextStyle::Body,
+            egui::FontId::new(16.0, egui::FontFamily::Monospace));
+        style.text_styles.insert(
+            egui::TextStyle::Button,
+            egui::FontId::new(16.0, egui::FontFamily::Monospace));
 
         let visuals = style.visuals.clone();
         cc.egui_ctx.set_style(style);
@@ -69,17 +71,25 @@ impl RcdApplication {
             "MSYH".to_owned(),
             egui::FontData::from_static(include_bytes!("../../fonts/msyh.ttc")), // 微软雅黑
         );
-        fonts.font_data.insert("maptool-iconfont".to_owned(), egui::FontData::from_static(include_bytes!("../../fonts/maptool-iconfont.ttf")));
+        fonts.font_data.insert(
+            "maptool-iconfont".to_owned(),
+            egui::FontData::from_static(include_bytes!("../../fonts/maptool-iconfont.ttf")));
 
         // 3. Set two font families to use the font, font's name must have been
         // Put new font first (highest priority)registered in `font_data`.
-        fonts.families.get_mut(&FontFamily::Proportional).unwrap().insert(0, "SimHei".to_owned());
-        fonts.families.get_mut(&FontFamily::Proportional).unwrap().insert(0, "maptool-iconfont".to_owned());
-        fonts.families.get_mut(&FontFamily::Proportional).unwrap().insert(0, "MSYH".to_owned());
+        fonts.families.get_mut(&FontFamily::Proportional).unwrap()
+            .insert(0, "SimHei".to_owned());
+        fonts.families.get_mut(&FontFamily::Proportional).unwrap()
+            .insert(0, "maptool-iconfont".to_owned());
+        fonts.families.get_mut(&FontFamily::Proportional).unwrap()
+            .insert(0, "MSYH".to_owned());
 
-        fonts.families.get_mut(&FontFamily::Monospace).unwrap().insert(0, "SimHei".to_owned());
-        fonts.families.get_mut(&FontFamily::Monospace).unwrap().insert(0, "maptool-iconfont".to_owned());
-        fonts.families.get_mut(&FontFamily::Monospace).unwrap().insert(0, "MSYH".to_owned());
+        fonts.families.get_mut(&FontFamily::Monospace).unwrap()
+            .insert(0, "SimHei".to_owned());
+        fonts.families.get_mut(&FontFamily::Monospace).unwrap()
+            .insert(0, "maptool-iconfont".to_owned());
+        fonts.families.get_mut(&FontFamily::Monospace).unwrap()
+            .insert(0, "MSYH".to_owned());
 
         for family in &fonts.families {
             println!("{:?}", family);
@@ -93,14 +103,13 @@ impl RcdApplication {
         script_id_map.insert(String::from("getStatisticsService"), CovidDataType::StatisticsService);
         script_id_map.insert(String::from("getListByCountryTypeService2true"), CovidDataType::ListByCountryTypeService2true);
         script_id_map.insert(String::from("getTimelineService1"), CovidDataType::TimelineService1);
-        script_id_map.insert(String::from("getTimelineService2"), CovidDataType::TimelineService2);
-        script_id_map.insert(String::from("getIndexRumorList"), CovidDataType::IndexRumorList);
         script_id_map.insert(String::from("fetchRecentStatV2"), CovidDataType::RecentStatV2);
 
         let windows: Vec<Box<dyn rcovid_gui::Window>> = vec![
             Box::new(rcovid_gui::rcdtimelineservice1window::RcdTimelineService1Window::default()),
             Box::new(rcovid_gui::rcdrecentstatv2window::RcdRecentStatV2Window::default()),
             Box::new(rcovid_gui::rcdareastatwindow::RcdAreaStatWindow::default()),
+            Box::new(rcovid_gui::rcdlistbycountrytypewindow::RcdListByCountryTypeWindow::default()),
         ];
 
         let mut open_windows = BTreeSet::new();
@@ -123,11 +132,6 @@ impl RcdApplication {
 
 impl eframe::App for RcdApplication {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        egui::TopBottomPanel::top("m_app_menubar").show(ctx, |ui| {
-            egui::trace!(ui, "m_app_menubar");
-            // self.show_menu_bar(ui, frame);
-        });
-
         egui::SidePanel::right("rcovid_right_panel").min_width(150.).default_width(180.).show(ctx, |ui| {
             egui::trace!(ui);
             ui.vertical_centered(|ui| {
@@ -137,8 +141,10 @@ impl eframe::App for RcdApplication {
             ui.separator();
 
             ScrollArea::vertical().show(ui, |ui| {
+                ui.label("丁香园");
+                ui.separator();
+
                 for window in &self.windows {
-                    let data = self.covid_json_map.get(&window.window_type());
                     let mut is_open = self.open_windows.contains(&window.window_type());
                     ui.checkbox(&mut is_open, window.name());
                     set_open(&mut self.open_windows, &window.window_type(), is_open);
@@ -165,7 +171,7 @@ impl eframe::App for RcdApplication {
                     if let Some(result) = promise.ready() {
                         if self.first_loaded {
                             match result {
-                                Ok((content, error)) => {
+                                Ok((content, _error)) => {
                                     let document = Html::parse_document(content);
                                     let tree_node = document.tree;
                                     tree_node.nodes().for_each(|node_ref| {
@@ -183,11 +189,20 @@ impl eframe::App for RcdApplication {
                                                             let text = child_node.as_text().unwrap();
 
                                                             let try_str = format!("try {} window.{} = ", "{", element_id);
-                                                            let html_content = text.trim().replace(try_str.as_str(), "").as_str().replace("}catch(e){}", "").as_str().replace("}catch(e) {}", "").as_str().replace("} catch(e){}", "").as_str().replace("} catch(e) {}", "");
+                                                            let html_content = text.trim()
+                                                                .replace(try_str.as_str(), "").as_str()
+                                                                .replace("}catch(e){}", "").as_str()
+                                                                .replace("}catch(e) {}", "").as_str()
+                                                                .replace("} catch(e){}", "").as_str()
+                                                                .replace("} catch(e) {}", "");
 
                                                             let json_res = json::parse(html_content.as_str());
                                                             if json_res.is_ok() {
-                                                                self.covid_json_map.insert(covid_data_type, json_res.unwrap());
+                                                                let json = json_res.unwrap();
+                                                                if covid_data_type == CovidDataType::StatisticsService {
+                                                                    println!("StatisticsService  {:?}", &json.to_string());
+                                                                }
+                                                                self.covid_json_map.insert(covid_data_type, json);
                                                             } else {
                                                                 tracing::error!("{} error, error info: {}", element_id, json_res.unwrap_err().to_string());
                                                             }
@@ -244,7 +259,7 @@ impl eframe::App for RcdApplication {
     #[cfg(feature = "persistence")]
     fn save(&mut self, storage: &mut dyn epi::Storage) {
         tracing::debug!("App saved");
-        epi::set_value(storage, rgis_core::APP_KEY, self);
+        epi::set_value(storage, rcovid_core::APP_KEY, self);
     }
 
     fn on_exit_event(&mut self) -> bool {
@@ -267,10 +282,6 @@ impl eframe::App for RcdApplication {
 }
 
 impl RcdApplication {
-    fn show_menu_bar(&mut self, ui: &mut egui::Ui, _frame: &eframe::Frame) {
-        egui::menu::bar(ui, |ui| {});
-    }
-
     fn load_covid(&mut self) {
         let (sender, promise) = Promise::new();
         let request = ehttp::Request::get(rcovid_core::COVID_URL);

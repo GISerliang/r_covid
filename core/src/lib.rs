@@ -7,11 +7,10 @@ pub enum CovidDataType {
     StatisticsService = 0,
     // 国内疫情
     AreaStat,
+    // 全球数据
     ListByCountryTypeService2true,
     // 疫情热点
     TimelineService1,
-    TimelineService2,
-    IndexRumorList,
     // 近期疫情
     RecentStatV2,
 }
