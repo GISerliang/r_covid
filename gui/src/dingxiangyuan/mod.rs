@@ -31,7 +31,7 @@ pub(crate) struct CityStat {
     pub dead_count: i64,
     // 治愈
     pub cured_count: i64,
-    // 疑似
+    // 境外输入
     pub suspected_count: i64,
     // 地区代码
     pub location_id: i32,
@@ -54,7 +54,7 @@ pub(crate) struct ProvinceStat {
     pub dead_count: i64,
     // 治愈
     pub cured_count: i64,
-    // 疑似
+    // 境外输入
     pub suspected_count: i64,
     // 地区代码
     pub location_id: i32,

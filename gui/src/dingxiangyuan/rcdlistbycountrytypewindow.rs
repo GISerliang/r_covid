@@ -39,7 +39,7 @@ struct ProvinceStat {
     pub dead_count: i64,
     // 治愈
     pub cured_count: i64,
-    // 疑似
+    // 境外输入
     pub suspected_count: i64,
     // 死亡排序
     pub dead_count_rank: u32,
@@ -88,7 +88,7 @@ struct ContinentStat {
     pub dead_count: i64,
     // 治愈
     pub cured_count: i64,
-    // 疑似
+    // 境外输入
     pub suspected_count: i64,
     pub provinces: Vec<ProvinceStat>,
 }
@@ -383,7 +383,7 @@ impl super::View for RcdListByCountryTypeWindow {
                             });
                             header.col(|ui| {
                                 ui.with_layout(egui::Layout::centered_and_justified(Direction::LeftToRight), |ui| {
-                                    ui.heading(RichText::new("疑似"));
+                                    ui.heading(RichText::new("境外输入"));
                                 });
                             });
                         })

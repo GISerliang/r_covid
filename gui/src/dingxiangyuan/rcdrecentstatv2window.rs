@@ -314,11 +314,6 @@ impl super::View for RcdRecentStatV2Window {
                         ui.heading(RichText::new("现存确诊"));
                     });
                 });
-                // header.col(|ui| {
-                //     ui.with_layout(egui::Layout::right_to_left(), |ui| {
-                //         ui.heading(RichText::new("新增风险地区"));
-                //     });
-                // });
                 header.col(|ui| {
                     ui.with_layout(egui::Layout::right_to_left(), |ui| {
                         ui.heading(RichText::new("风险地区"));
@@ -353,11 +348,6 @@ impl super::View for RcdRecentStatV2Window {
                                 ui.label(province_stat.current_confirmed_count.to_string());
                             });
                         });
-                        // row.col(|ui| {
-                        //     ui.with_layout(egui::Layout::right_to_left(), |ui| {
-                        //         ui.label(province_stat.danger_count_incr.to_string());
-                        //     });
-                        // });
                         row.col(|ui| {
                             ui.with_layout(egui::Layout::right_to_left(), |ui| {
                                 ui.label(province_stat.current_danger_count.to_string());

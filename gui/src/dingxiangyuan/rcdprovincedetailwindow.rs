@@ -11,7 +11,7 @@
 use egui::{Context, Direction, Hyperlink, RichText, Window};
 use egui_extras::{Size, TableBuilder};
 
-use crate::ProvinceStat;
+use crate::dingxiangyuan::ProvinceStat;
 
 #[derive(Default)]
 pub(crate) struct RcdProvinceDetailWindow {}
@@ -66,7 +66,7 @@ impl RcdProvinceDetailWindow {
                                     });
                                     header.col(|ui| {
                                         ui.with_layout(egui::Layout::right_to_left(), |ui| {
-                                            ui.heading(RichText::new("疑似")); // .background_color(Color32::from_rgb(227, 231, 243)));
+                                            ui.heading(RichText::new("境外输入")); // .background_color(Color32::from_rgb(227, 231, 243)));
                                         });
                                     });
                                     header.col(|ui| {
