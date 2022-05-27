@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-`rCovid`由`Rust`和`egui`构建的展示2019新型冠状病毒（COVID-19/2019-nCoV）疫情实时状况的应用，数据来源为[丁香园](https://ncov.dxy.cn/ncovh5/view/pneumonia) 。
+`rCovid`由`Rust`和`egui`构建的展示2019新型冠状病毒（COVID-19/2019-nCoV）实时疫情的应用，数据来源为[丁香园](https://ncov.dxy.cn/ncovh5/view/pneumonia) 。
 
 [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language)) 是由Mozilla主导开发的通用、编译型编程语言。设计准则为“安全、并发、实用”，支持函数式、并发式、过程式以及面向对象的程序设计风格。AWS、Google、微软、华为都是Rust基金会成员。
 

@@ -10,7 +10,7 @@
 
 use eframe;
 use eframe::glow;
-use egui::{Align2, Context, FontFamily, Rgba, ScrollArea, Vec2, Window};
+use egui::{Align2, containers, Context, FontFamily, Id, Rgba, ScrollArea, Vec2, Window};
 use ehttp::{self};
 use json::JsonValue;
 use poll_promise::Promise;
@@ -33,6 +33,8 @@ pub struct RcdApplication {
     covid_json_map: HashMap<CovidDataType, JsonValue>,
     windows: Vec<Box<dyn rcovid_gui::dingxiangyuan::Window>>,
     open_windows: BTreeSet<CovidDataType>,
+    about_is_open: bool,
+    about_window: rcovid_gui::rcdaboutwindow::RcdAboutWindow,
 }
 
 impl RcdApplication {
@@ -126,12 +128,19 @@ impl RcdApplication {
             covid_json_map: HashMap::new(),
             windows,
             open_windows,
+            about_is_open: false,
+            about_window: rcovid_gui::rcdaboutwindow::RcdAboutWindow::default(),
         }
     }
 }
 
 impl eframe::App for RcdApplication {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        egui::TopBottomPanel::top("m_app_menubar").show(ctx, |ui| {
+            egui::trace!(ui, "m_app_menubar");
+            self.show_menu_bar(ui, frame);
+        });
+
         egui::SidePanel::right("rcovid_right_panel").min_width(150.).default_width(180.).show(ctx, |ui| {
             egui::trace!(ui);
             ui.vertical_centered(|ui| {
@@ -251,6 +260,7 @@ impl eframe::App for RcdApplication {
         }
 
         self.windows(ctx);
+        self.about_window.show(ctx, &mut self.about_is_open);
     }
 
     #[cfg(feature = "persistence")]
@@ -279,6 +289,16 @@ impl eframe::App for RcdApplication {
 }
 
 impl RcdApplication {
+    fn show_menu_bar(&mut self, ui: &mut egui::Ui, _frame: &eframe::Frame) {
+        egui::menu::bar(ui, |ui| {
+            ui.menu_button("帮助", |ui| {
+                if ui.toggle_value(&mut self.about_is_open, "关于").clicked() {
+                    ui.close_menu();
+                }
+            });
+        });
+    }
+
     fn load_covid(&mut self) {
         let (sender, promise) = Promise::new();
         let request = ehttp::Request::get(rcovid_core::COVID_URL);
