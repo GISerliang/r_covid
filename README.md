@@ -11,7 +11,11 @@
 结合国内当前疫情情况以及正在学习的`Rust`，巩固学习的知识，个人爱好，如有谬误请指正。
 
 ## 截图
-
+![疫情热点](./screenshot/Snipaste_2022-05-27_15-56-12.png)
+![疫情热点-hover](./screenshot/Snipaste_2022-05-27_15-58-59.png)
+![近期疫情](./screenshot/Snipaste_2022-05-27_15-56-46.png)
+![国内疫情](./screenshot/Snipaste_2022-05-27_15-57-49.png)
+![全球疫情](./screenshot/Snipaste_2022-05-27_15-58-13.png)
 
 ## 运行
 1. 安装Rust
