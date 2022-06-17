@@ -7,7 +7,7 @@ authors = ["giserliang <hml8431386@163.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rcovid_core = "*"
+rcovid_core = { path = "../core" }
 
 json = "^0.12"
 linked-hash-map = "^0.5"

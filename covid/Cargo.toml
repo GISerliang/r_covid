@@ -13,8 +13,8 @@ tracing = "^0.1.*"
 tracing-subscriber = "*"
 tracing-appender = "^0.2"
 
-rcovid_app = "*"
-rcovid_core = "*"
+rcovid_app = { path = "../app" }
+rcovid_core = { path = "../core" }
 
 [dependencies.tokio]
 version = "~1.14"
@@ -27,3 +27,6 @@ features = ["default_fonts"]
 [dependencies.eframe]
 version = "^0.18.0"
 features = ["default_fonts"]
+
+[build-dependencies]
+embed-resource = "^1"
