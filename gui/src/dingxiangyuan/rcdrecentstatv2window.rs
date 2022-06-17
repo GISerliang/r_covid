@@ -8,12 +8,26 @@
 //!
 ////////////////////////////////////////////////////////////////////////////////
 
-use std::collections::HashMap;
-use egui::{Context, Direction, Hyperlink, RichText, Ui, Window};
+use std::collections::{BTreeMap, HashMap};
+use std::ops::RangeInclusive;
+use egui::{Context, Direction, Hyperlink, Response, RichText, Ui, widgets, Window};
+use egui::plot::{Bar, BarChart, Legend, Line, Plot};
 use json::JsonValue;
 use linked_hash_map::LinkedHashMap;
 
 use rcovid_core::CovidDataType;
+
+#[derive(PartialEq, Eq)]
+enum ChartType {
+    YesterdayChart,
+    ConfirmedChart,
+}
+
+impl Default for ChartType {
+    fn default() -> Self {
+        Self::YesterdayChart
+    }
+}
 
 struct RecentCityStat {
     // 名称
@@ -65,6 +79,7 @@ pub struct RcdRecentStatV2Window {
     province_detail_map: HashMap<i32, bool>,
     province_detail_open: bool,
     province_detail_id: Option<i32>,
+    chart_type: ChartType,
 }
 
 impl super::Window for RcdRecentStatV2Window {
@@ -282,6 +297,17 @@ impl super::View for RcdRecentStatV2Window {
             }
         }
 
+        ui.horizontal(|ui| {
+            ui.selectable_value(&mut self.chart_type, ChartType::YesterdayChart, "本土新增和本土无症状");
+            ui.selectable_value(&mut self.chart_type, ChartType::ConfirmedChart, "现存确诊");
+        });
+        match self.chart_type {
+            ChartType::YesterdayChart => self.plot_yesterday(ui),
+            ChartType::ConfirmedChart => self.plot_confirmed(ui)
+        };
+
+        ui.separator();
+
         TableBuilder::new(ui)
             .striped(true)
             .resizable(true)
@@ -290,7 +316,6 @@ impl super::View for RcdRecentStatV2Window {
             .column(Size::initial(64.0).at_least(48.0))
             .column(Size::initial(72.0).at_least(64.0))
             .column(Size::initial(64.0).at_least(32.0))
-            // .column(Size::initial(72.0).at_least(64.0))
             .column(Size::initial(64.0).at_least(32.0))
             .column(Size::initial(32.0).at_least(32.0))
             .header(32., |mut header| {
@@ -377,4 +402,108 @@ impl super::View for RcdRecentStatV2Window {
                 }
             });
     }
+}
+
+impl RcdRecentStatV2Window {
+    fn plot_yesterday(&mut self, ui: &mut Ui) -> Response {
+        let mut yesterday_asymptomatic_bars = Vec::new();
+        let mut yesterday_local_confirmed_bars = Vec::new();
+        let mut names = Vec::new();
+
+        let mut i = 0.25;
+        for (_, province_stat) in &self.provinces_stat {
+            if province_stat.yesterday_local_confirmed_count == 0 && province_stat.yesterday_asymptomatic_count == 0 {
+                continue;
+            }
+
+            yesterday_asymptomatic_bars.push(Bar::new(i,
+                                                      province_stat.yesterday_asymptomatic_count as f64)
+                .name(province_stat.short_name.as_str()));
+            yesterday_local_confirmed_bars.push(Bar::new(i,
+                                                         province_stat.yesterday_local_confirmed_count as f64)
+                .name(province_stat.short_name.as_str()));
+            names.push(String::from(province_stat.short_name.as_str()));
+            i += 1.;
+        }
+        let mut yesterday_asymptomatic_chart = BarChart::new(yesterday_asymptomatic_bars)
+            .element_formatter(Box::new(recent_chart_label))
+            .width(0.5)
+            .name("本土无症状");
+
+        let mut yesterday_local_confirmed_chart = BarChart::new(yesterday_local_confirmed_bars)
+            .element_formatter(Box::new(recent_chart_label))
+            .width(0.5)
+            .name("本土新增")
+            .stack_on(&[&yesterday_asymptomatic_chart]);
+
+        let x_fmt = move |x: f64, _range: &RangeInclusive<f64>| {
+            if let Some(name) = names.get(x.floor() as usize) {
+                format!("{}", name.as_str())
+            } else {
+                String::new()
+            }
+        };
+
+        Plot::new("plot_yesterday")
+            .legend(Legend::default())
+            .height(160.)
+            .x_axis_formatter(x_fmt)
+            .y_axis_formatter(|y, _range| {
+                String::new()
+            })
+            .show(ui, |plot_ui| {
+                plot_ui.bar_chart(yesterday_asymptomatic_chart);
+                plot_ui.bar_chart(yesterday_local_confirmed_chart);
+            })
+            .response
+    }
+
+    fn plot_confirmed(&mut self, ui: &mut Ui) -> Response {
+        let mut confirmed_values = BTreeMap::new();
+        for (_, province_stat) in &self.provinces_stat {
+            confirmed_values.insert(province_stat.current_confirmed_count, province_stat.short_name.as_str());
+        }
+
+        let mut y_value = ((confirmed_values.len() - 1) as f64) + 0.25;
+        let mut confirmed_bars = Vec::new();
+
+        let mut names = Vec::new();
+        for (count, name) in confirmed_values.iter() {
+            confirmed_bars.push(Bar::new(y_value,
+                                         *count as f64)
+                .name(*name));
+            names.push(String::from(*name));
+            y_value = y_value - 1.;
+        }
+        names.reverse();
+
+        let confirmed_chart = BarChart::new(confirmed_bars)
+            .element_formatter(Box::new(recent_chart_label))
+            .width(0.5)
+            .name("现存确诊");
+
+        let x_fmt = move |x: f64, _range: &RangeInclusive<f64>| {
+            if let Some(name) = names.get(x.floor() as usize) {
+                format!("{}", name.as_str())
+            } else {
+                String::new()
+            }
+        };
+
+        Plot::new("plot_confirmed")
+            .legend(Legend::default())
+            .height(160.)
+            .x_axis_formatter(x_fmt)
+            .y_axis_formatter(|y, _range| {
+                String::new()
+            })
+            .show(ui, move |plot_ui| {
+                plot_ui.bar_chart(confirmed_chart);
+            })
+            .response
+    }
+}
+
+fn recent_chart_label(bar: &Bar, chart: &BarChart) -> String {
+    format!("{}: {} 例", bar.name, bar.value)
 }
