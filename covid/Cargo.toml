@@ -30,3 +30,6 @@ features = ["default_fonts"]
 
 [build-dependencies]
 embed-resource = "^1"
+
+[dev-dependencies]
+windows = "0.32.0"
