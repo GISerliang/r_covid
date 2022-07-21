@@ -497,7 +497,7 @@ impl RcdRecentStatV2Window {
             .y_axis_formatter(|y, _range| {
                 String::new()
             })
-            .show(ui, move |plot_ui| {
+            .show(ui, |plot_ui| {
                 plot_ui.bar_chart(confirmed_chart);
             })
             .response
