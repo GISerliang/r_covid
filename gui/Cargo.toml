@@ -1,6 +1,6 @@
 [package]
 name = "rcovid_gui"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["giserliang <hml8431386@163.com>"]
 
@@ -11,7 +11,7 @@ rcovid_core = { path = "../core" }
 
 json = "^0.12"
 linked-hash-map = "^0.5"
-chrono = "^0.4"
+chrono = { version = "^0.4", features = ["js-sys", "wasmbind"] }
 
 [dependencies.egui]
 version = "^0.18"

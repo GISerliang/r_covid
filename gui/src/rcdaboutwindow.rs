@@ -48,6 +48,9 @@ impl RcdAboutWindow {
                         ui.label("增加国内疫情（各省详细信息）");
                         ui.label("增加全球疫情（各国详细信息）");
                     });
+                    ui.collapsing("V0.2.0", |ui| {
+                        ui.label("增加wasm编译");
+                    });
                 });
 
                 ui.separator();

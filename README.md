@@ -24,9 +24,23 @@
 2. 克隆项目
     
     `git clone https://github.com/GISerliang/r_covid.git`
-3. 项目编译运行
+3. 项目编译native运行
 
     打开终端（cmd、powershell、bash等），进入`r_covid`目录，执行`cargo build --release && cargo run --release`。
+
+4. wasm编译运行
+    ```
+    rustup target add wasm32-unknown-unknown
+    cargo install wasm-bindgen-cli
+    cargo update -p wasm-bindgen
+    cargo install wasm-pack
+    cd covid && wasm-pack build
+
+    wasm-bindgen "${SOURCE}/r_covid/target/wasm32-unknown-unknown/release/rcovid.wasm" --out-dir web --no-modules --no-typescript
+    wasm-opt "web/rcovid_bg.wasm" -O2 --fast-math -o "web/rcovid_bg.wasm"
+
+    cd web && basic-http-server --addr 127.0.0.1:8888
+    ```
 
 ## TODO
 - [x] 丁香园实时数据
@@ -35,7 +49,7 @@
 - [x] 表格展示
 - [ ] 图表展示
 - [ ] 各平台打包脚本
-- [ ] Web编译
+- [x] Web编译
 
 ## 更新日志
 
@@ -45,3 +59,5 @@
   - 增加近期疫情（各省详细信息）
   - 增加国内疫情（各省详细信息）
   - 增加全球疫情（各国详细信息）
+- V0.2.0
+  - 增加wasm编译
